@@ -72,11 +72,27 @@ double avg(int counterID, ifstream& in)
 	return (count==0)?0:avg / count;
 }
 
+int getMaxCounterID(ifstream& in)
+{
+	int maxCounter = 0;
+	Gas gas;
+	in.clear();
+	in.seekg(0, ios::beg);
+	if (!in) return 0;
+	while (in >> gas)
+	{
+		if (gas.counterID > maxCounter)
+		{
+			maxCounter = gas.counterID;
+		}
+	}
+}
+
 void writeAverages(ifstream& in)
 {
 	ofstream output("averages.bin", ios::ate | ios::binary);
 	if (!output) return;
-	size_t maxCounterID = 10;//getMaxCounterID();
+	size_t maxCounterID = getMaxCounterID();
 	for (size_t i = 0; i < maxCounterID; i++)
 	{
 		output.seekp((i - 1)*sizeof(Gas), ios::beg);
