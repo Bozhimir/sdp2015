@@ -6,11 +6,25 @@
 #include <queue>
 #include <stack>
 
-void BFS(graph<int>& g, int v)// graph i nachalen vryh
+bool isIn(LList<int>& l, int x)
+{
+	l.iterStart();
+	elem_link1<int>* current = l.iter();
+	while (current)
+	{
+		if (current->inf == x)
+		{
+			return true;
+		}
+		current = current->link;
+	}
+	return false;
+}
+
+void BFS(graph<int>& g, int v, LList<int> visited)// graph i nachalen vryh
 {
 	queue<int> front;
 	front.push(v);
-	LList<int> visited;
 	visited.toEnd(v);
 	int currVertex;
 	while (!front.empty())
@@ -31,11 +45,10 @@ void BFS(graph<int>& g, int v)// graph i nachalen vryh
 	}
 }
 
-void DFS(graph<int>& g, int v)// graph i nachalen vryh
+void DFS(graph<int>& g, int v, LList<int> visited)// graph i nachalen vryh
 {
 	stack<int> front;
 	front.push(v);
-	LList<int> visited;
 	visited.toEnd(v);
 	int currVertex;
 	while (!front.empty())
@@ -56,19 +69,44 @@ void DFS(graph<int>& g, int v)// graph i nachalen vryh
 	}
 }
 
-bool isIn(LList<int>& l, int x)
+bool path(int a, int b, graph<int>& g, LList<int>& visited)
 {
-	l.iterStart();
-	elem_link1<int>* current = l.iter();
-	while (current)
+	if (a == b)
 	{
-		if (current->inf == x)
-		{
-			return true;
-		}
-		current = current->link;
+		visited.toEnd(b);
+		return true;
 	}
-	return false; 
+	else
+	{
+		visited.toEnd(a);
+		elem_link1<int>* pA = g.point(a);
+		pA = pA->link;
+		while (pA)
+		{
+			if (!isIn(visited, pA->inf))
+			{
+				if (path(pA->inf, b, g, visited)) return true;
+				removeLast(visited); //maha posledniq element ot spisyka
+			}
+			pA = pA->link;
+		}
+		return false;
+	}
+}
+
+int countConnectedComponents(graph<int>& g)
+{
+	int countComp = 0;
+	LList<int> visited;
+	if (!g.empty())
+	{
+		LList<int> v = g.vertexes();
+		v.iterStart();
+		elem_link1<int>* first = v.iter();
+		int vertex = first->inf;
+		BFS(g, vertex, visited);
+		++countComp;
+	}
 }
 
 int _tmain(int argc, _TCHAR* argv[])
@@ -84,7 +122,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	g.addRib(2, 3);
 	g.addRib(3, 4);
 	g.addRib(3, 5);
+	g.print();
+	LList<int> visited;
+	BFS(g, 4, visited);
 
 	return 0;
 }
-
